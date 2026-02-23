@@ -3,7 +3,17 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
-*.env
+
+# Env files (secrets)
+.env
+.env.*
+.env.docker
+!.env.example
+
+# Database dumps
+*.dump
+*.sql
+*.backup
 
 # Virtual environment
 venv/

@@ -1,14 +1,14 @@
 # sea-roadinfo
 Backend service for ingesting and querying Seattle traffic collision data.
 
-This project ingests Seattle’s public collision dataset into a normalized PostgreSQL schema (fact + lookup tables) and exposes filterable and aggregated FastAPI endpoints. It also builds and provides Vega-ready visualization specs so the data can be explored programmatically and charted quickly.
+This project ingests Seattle public collision dataset into a normalized PostgreSQL schema (fact + lookup tables) and exposes filterable and aggregated FastAPI endpoints. It also builds and provides Vega-ready visualization specs so the data can be explored programmatically and charted quickly.
 
 ## Features
 - Ingests collision data from Seattle open data portal (ArcGIS REST).
 - Stores data in PostgreSQL using SQLAlchemy ORM (fact table + lookup tables).
 - Filterable collisions API (`/collisions`) plus reference lookups (`/lookups/*`).
 - Aggregate stats endpoints (`/collisions/stats/*`).
-- Visualization endpoints (`/viz/*`) return Vega specs with embedded data (copy/paste into Vega editor).
+- Visualization endpoints (`/viz/*`) return Vega specs with embedded data (copy/paste into Vega Editor).
 
 ## Screenshots
 <p>
@@ -23,13 +23,32 @@ This project ingests Seattle’s public collision dataset into a normalized Post
 
 ## Tech Stack
 - Python 3.14.2
-- FastAPI 
+- FastAPI
 - SQLAlchemy 2.0.45
 - PostgreSQL
 - Uvicorn
 - psycopg
 
-## Local Development
+## Docker
+1) Create `/.env.docker` (ignored by git)
+```env
+POSTGRES_USER=YOUR_USER
+POSTGRES_PASSWORD=YOUR_PASSWORD
+POSTGRES_DB=YOUR_DB
+```
+
+2) Build/start services, create tables, and import data:
+```bash
+docker compose up --build
+docker compose run --rm api python -m app.create_tables
+docker compose run --rm api python -m app.data_import.seattle_collisions
+```
+
+3) Verify:
+- `GET http://127.0.0.1:8000/health`
+- `GET http://127.0.0.1:8000/docs`
+
+## Local Development (No Docker)
 ```bash
 python -m venv venv
 .\venv\Scripts\Activate.ps1 # or activate.bat if CMD prompt
@@ -46,7 +65,7 @@ Create `/.env` from `.env.example`
 - Importer uses `BATCH_SIZE` (default `2000`) and increments `offset += BATCH_SIZE` per page.
 - Reduce `BATCH_SIZE` if you hit timeouts/rate limits.
 
-## Data Import
+## Data Import (Local)
 1) Create tables
 ```bash
 python -m app.create_tables
@@ -56,7 +75,7 @@ python -m app.create_tables
 python -m app.data_import.seattle_collisions
 ```
 
-## Run
+## Run (Local)
 ```bash
 python -m uvicorn app.main:app --reload
 ```
